@@ -1,4 +1,8 @@
 import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
+import JWT from 'jsonwebtoken';
+import { config } from "dotenv";
+import crypto from 'crypto';
 
 const userSchema = mongoose.Schema({
     name:{
@@ -25,4 +29,37 @@ const userSchema = mongoose.Schema({
     forgotPasswordExpiry:Date,
 },{timestamp:true});
 
-export default mongoose.model('Use',userSchema);
+// pre is hook here
+
+userSchema.pre('save',async function(next){
+    if(!this.isModified('password')) return next();
+   this.password = await bcrypt.hash(this.password, 8);
+   next();
+})
+
+userSchema.methods = {
+    //compare password
+    comparePassword: async function(enteredPassword){
+        return await bcrypt.compare(enteredPassword,this.password);
+    },
+    //generate JWT token
+    getJWTtoken: function(){
+        JWT.sign({_id:this._id, role:this.role},config.JWT_SECRET,{
+            expiresIn:config.JWT_EXPIRY,
+        })
+    },
+    //generate forget token
+    generateForgatePasswordToken : function(){
+        const forgotToken = crypto.randomBytes(20).toString('hex');
+
+        //just to encrypt the token genetated by crypto
+        this.forgotPasswordToken = crypto.createHash('sha256').update(forgotToken).digest('hex');
+
+        //time for token to expire
+        this.forgotPasswordExpiry = Date.now() + 20 * 60 * 1000;
+
+        return forgotToken;
+    }
+}
+
+export default mongoose.model('User',userSchema);

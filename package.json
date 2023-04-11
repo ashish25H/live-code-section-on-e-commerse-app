@@ -2,17 +2,19 @@
   "name": "live-code-section-on-e-commerse-app",
   "version": "1.0.0",
   "description": "e-comm app",
-  "type":"module",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start":"node ./src/index.js"
+    "start": "node ./src/index.js"
   },
   "author": "Ashish",
   "license": "ISC",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.0",
     "mongoose": "^7.0.3"
   }
 }
